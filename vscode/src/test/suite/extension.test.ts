@@ -30,7 +30,7 @@ import * as myExtension from '../../extension';
 import * as myExplorer from '../../explorer';
 
 import { CodeAction, commands, extensions, Selection, Uri, window, workspace, TreeItem } from 'vscode';
-import { assertWorkspace, dumpJava, getFilePaths, openFile, prepareProject, replaceCode} from './testutils';
+import { assertWorkspace, awaitClient, dumpJava, getFilePaths, openFile, prepareProject, replaceCode} from './testutils';
 import {SAMPLE_CODE_FORMAT_DOCUMENT, SAMPLE_CODE_SORT_IMPORTS, SAMPLE_CODE_UNUSED_IMPORTS } from './constants';
 import { extConstants } from '../../constants';
 
@@ -217,7 +217,7 @@ suite('Extension Test Suite', function () {
         const mainClass = path.join(folder, 'target', 'classes', 'pkg', 'Main.class');
         assert.ok(fs.statSync(mainClass).isFile(), "Class created by compilation: " + mainClass);
 
-        myExplorer.createViewProvider(await myExtension.awaitClient(), "foundProjects").then(async (lvp) => {
+        myExplorer.createViewProvider(await awaitClient(), "foundProjects").then(async (lvp) => {
             const firstLevelChildren = await (lvp.getChildren() as Thenable<any[]>);
             assert.strictEqual(firstLevelChildren.length, 1, "One child under the root");
             const item = await (lvp.getTreeItem(firstLevelChildren[0]) as Thenable<TreeItem>);

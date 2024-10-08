@@ -31,6 +31,9 @@ import { spawn, ChildProcessByStdio } from 'child_process';
 import { Readable } from 'stream';
 import { EXAMPLE_POM, MAIN_JAVA, MAIN_TEST_JAVA, SAMPLE_CODE_FORMAT_DOCUMENT, SAMPLE_CODE_REFACTOR, SAMPLE_CODE_SORT_IMPORTS, SAMPLE_CODE_UNUSED_IMPORTS } from './constants';
 import { extConstants } from '../../constants';
+import { NbLanguageClient } from '../../lsp/nbLanguageClient';
+import { globalVars } from '../../extension';
+import { l10n } from '../../localiser';
 
 /**
  * Folder path currently opened in VSCode workspace 
@@ -116,7 +119,7 @@ export async function waitCommandsReady(): Promise<void> {
                 }
             }
         }
-        myExtension.awaitClient().then(() => checkCommands(5, () => { }));
+        awaitClient().then(() => checkCommands(5, () => { }));
     });
 }
 
@@ -192,4 +195,23 @@ export async function dumpJava(): Promise<void> {
         });
     });
     console.log(`${cmd} ${args.join(' ')} finished with code ${n}`);
+}
+
+export function awaitClient() : Promise<NbLanguageClient> {
+    const clientPromise = globalVars.clientPromise;
+    if (clientPromise.client && clientPromise.initialPromiseResolved) {
+        return clientPromise.client;
+    }
+    let nbcode = vscode.extensions.getExtension(extConstants.ORACLE_VSCODE_EXTENSION_ID);
+    if (!nbcode) {
+        return Promise.reject(new Error(l10n.value("jdk.extenstion.notInstalled.label")));
+    }
+    const t : Thenable<NbLanguageClient> = nbcode.activate().then(nc => {
+        if (globalVars.clientPromise.client === undefined || !globalVars.clientPromise.initialPromiseResolved) {
+            throw new Error(l10n.value("jdk.extenstion.error_msg.clientNotAvailable"));
+        } else {
+            return globalVars.clientPromise.client;
+        }
+    });
+    return Promise.resolve(t);
 }
