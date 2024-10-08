@@ -11,11 +11,10 @@ export class ClientPromise {
     activationPending!: boolean;
     initialPromiseResolved: boolean = false;
 
-    public clientPromiseInitialization = (): void => {
+    public initialize = (): void => {
         this.client = new Promise<NbLanguageClient>((clientOK, clientErr) => {
             this.setClient = [
                 (c: NbLanguageClient) => {
-                    this.initialPromiseResolved = true;
                     clientOK(c);
                 },
                 (err: any) => {
@@ -26,6 +25,12 @@ export class ClientPromise {
 
         this.activationPending = true;
         commands.executeCommand('setContext', 'nbJdkReady', false);
+    }
+
+    public initializedSuccessfully = (client: NbLanguageClient) => {
+        this.initialPromiseResolved = true;
+        globalVars.clientPromise.setClient[0](client);
+        commands.executeCommand('setContext', 'nbJdkReady', true);
     }
 
     public stopClient = async (): Promise<void> => {
@@ -52,7 +57,7 @@ export class ClientPromise {
         try {
             await this.stopClient();
             await nbProcessManager.killProcess(notifyKill);
-            this.clientPromiseInitialization();
+            this.initialize();
             initializeServer();
         } catch (error) {
             LOGGER.log(`Error during activation: ${error}`, LogLevel.ERROR);

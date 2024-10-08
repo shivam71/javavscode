@@ -1,4 +1,4 @@
-import { JdkDownloaderView } from "../jdkDownloader/view";
+import { JdkDownloaderView } from "../webviews/jdkDownloader/view";
 import { extCommands } from "./commands";
 import { ICommand } from "./types";
 

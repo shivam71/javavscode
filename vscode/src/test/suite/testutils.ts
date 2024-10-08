@@ -215,3 +215,29 @@ export function awaitClient() : Promise<NbLanguageClient> {
     });
     return Promise.resolve(t);
 }
+
+export function findClusters(myPath : string): string[] {
+    let clusters = [];
+    for (let e of vscode.extensions.all) {
+        if (e.extensionPath === myPath) {
+            continue;
+        }
+        const dir = path.join(e.extensionPath, 'nbcode');
+        if (!fs.existsSync(dir)) {
+            continue;
+        }
+        const exists = fs.readdirSync(dir);
+        for (let clusterName of exists) {
+            let clusterPath = path.join(dir, clusterName);
+            let clusterModules = path.join(clusterPath, 'config', 'Modules');
+            if (!fs.existsSync(clusterModules)) {
+                continue;
+            }
+            let perm = fs.statSync(clusterModules);
+            if (perm.isDirectory()) {
+                clusters.push(clusterPath);
+            }
+        }
+    }
+    return clusters;
+}
