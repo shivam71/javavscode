@@ -29,7 +29,7 @@ import * as Mocha from 'mocha';
 import * as vscode from 'vscode';
 import * as myExtension from '../../extension';
 import * as myExplorer from '../../explorer';
-import { assertWorkspace } from './testutils';
+import { assertWorkspace, awaitClient } from './testutils';
 
 Mocha.before(async () => {
     vscode.window.showInformationMessage('Cleaning up workspace.');
@@ -42,7 +42,7 @@ suite('Explorer Test Suite', () => {
     vscode.window.showInformationMessage('Start explorer tests.');
 
     test('Explorer can be created', async () => {
-        const lvp = await myExplorer.createViewProvider(await myExtension.awaitClient(), 'foundProjects');
+        const lvp = await myExplorer.createViewProvider(await awaitClient(), 'foundProjects');
         const firstLevelChildren = await (lvp.getChildren() as Thenable<any[]>);
         assert.strictEqual(firstLevelChildren.length, 0, "No child under the root");
     }).timeout(10000);
