@@ -2,7 +2,7 @@ import { commands } from "vscode";
 import { globalVars, LOGGER } from "../extension";
 import { LogLevel } from "../logger";
 import { NbProcessManager } from "./nbProcessManager";
-import { initializeServer } from "./initializer";
+import { clientInit, serverOptionsBuilder } from "./initializer";
 import { NbLanguageClient } from "./nbLanguageClient";
 
 export class ClientPromise {
@@ -58,7 +58,7 @@ export class ClientPromise {
             await this.stopClient();
             await nbProcessManager.killProcess(notifyKill);
             this.initialize();
-            initializeServer();
+            clientInit();
         } catch (error) {
             LOGGER.log(`Error during activation: ${error}`, LogLevel.ERROR);
             throw error;

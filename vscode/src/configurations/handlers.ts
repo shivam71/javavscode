@@ -122,5 +122,5 @@ export const userdirHandler = (): string => {
 }
 
 export const isNbJavacDisabledHandler = (): boolean => {
-    return getConfigurationValue(configKeys.verbose, false);
+    return getConfigurationValue(configKeys.disableNbJavac, false);
 }
