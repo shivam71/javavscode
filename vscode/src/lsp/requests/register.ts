@@ -7,4 +7,4 @@ export const registerRequestListeners = (client: NbLanguageClient) => {
         const { type, handler } = listener;
         client.onRequest(type, handler);
     })
-} 
+}
