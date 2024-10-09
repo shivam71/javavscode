@@ -23,17 +23,13 @@
 
 'use strict';
 
-import { commands, window, workspace, ExtensionContext, TextEditorDecorationType } from 'vscode';
+import { commands, workspace, ExtensionContext, TextEditorDecorationType } from 'vscode';
 
-import {
-	StreamInfo
-} from 'vscode-languageclient/node';
 
 import * as vscode from 'vscode';
 import { NbTestAdapter } from './testAdapter';
 import { SetTextEditorDecorationParams} from './lsp/protocol';
 import * as launchConfigurations from './launchConfigurations';
-import { TreeViewService, Visualizer } from './explorer';
 import { initializeRunConfiguration, runConfigurationProvider, runConfigurationNodeProvider, configureRunSettings } from './runConfiguration';
 import { PropertiesView } from './propertiesView/propertiesView';
 import { extConstants } from './constants';
@@ -41,13 +37,10 @@ import { ExtensionInfo } from './extensionInfo';
 import { ClientPromise } from './lsp/clientPromise';
 import { ExtensionLogger } from './logger';
 import { NbProcessManager } from './lsp/nbProcessManager';
-import { clientInit, serverOptionsBuilder } from './lsp/initializer';
-import { NbLanguageClient } from './lsp/nbLanguageClient';
+import { clientInit } from './lsp/initializer';
 import { subscribeCommands } from './commands/register';
 import { VSNetBeansAPI } from './lsp/types';
-import { registerListenersAfterClientInit, registerListenersBeforeClientInit } from './listener';
-import { registerNotificationListeners } from './lsp/notifications/register';
-import { registerRequestListeners } from './lsp/requests/register';
+import { registerListenersBeforeClientInit } from './listener';
 import { registerDebugger } from './debugger/debugger';
 
 export let LOGGER: ExtensionLogger;
@@ -64,20 +57,6 @@ export namespace globalVars {
     export let decorationParamsByUri = new Map<vscode.Uri, SetTextEditorDecorationParams>();
 }
 
-function contextUri(ctx : any) : vscode.Uri | undefined {
-    if (ctx?.fsPath) {
-        return ctx as vscode.Uri;
-    } else if (ctx?.resourceUri) {
-        return ctx.resourceUri as vscode.Uri;
-    } else if (typeof ctx == 'string') {
-        try {
-            return vscode.Uri.parse(ctx, true);
-        } catch (err) {
-            return vscode.Uri.file(ctx);
-        }
-    }
-    return vscode.window.activeTextEditor?.document?.uri;
-}
 
 export function activate(context: ExtensionContext): VSNetBeansAPI {
     globalVars.deactivated = false;
