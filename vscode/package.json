@@ -375,10 +375,6 @@
 		],
 		"commands": [
 			{
-				"command": "jdk.node.properties.edit",
-				"title": "%jdk.node.properties.edit%"
-			},
-			{
 				"command": "jdk.workspace.compile",
 				"title": "%jdk.workspace.compile%",
 				"category": "Java"
@@ -592,10 +588,6 @@
 				},
 				{
 					"command": "jdk.foundProjects.deleteEntry",
-					"when": "false"
-				},
-				{
-					"command": "jdk.node.properties.edit",
 					"when": "false"
 				},
 				{
