@@ -46,21 +46,6 @@ export const findNbcode = (extensionPath: string): string => {
     return nbcodePath;
 }
 
-export function collectDocumentSelectors(): TextDocumentFilter[] {
-    const selectors = [];
-    for (const extension of extensions.all) {
-        const contributesSection = extension.packageJSON['contributes'];
-        if (contributesSection) {
-            const documentSelectors = contributesSection['netbeans.documentSelectors'];
-            if (Array.isArray(documentSelectors) && documentSelectors.length) {
-                selectors.push(...documentSelectors);
-            }
-        }
-    }
-    return selectors;
-}
-
-
 export const restartWithJDKLater = (time: number, notifyKill: boolean): void => {
     LOGGER.log(`Restart of ${extConstants.SERVER_NAME} requested in ${time / 1000} s.`);
     const nbProcessManager = globalVars.nbProcessManager;

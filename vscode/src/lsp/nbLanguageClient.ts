@@ -4,7 +4,7 @@ import { createTreeViewService, TreeViewService } from "../explorer";
 import { OutputChannel, workspace } from "vscode";
 import { extConstants } from "../constants";
 import { userConfigsListenedByServer } from '../configurations/configuration';
-import { collectDocumentSelectors, restartWithJDKLater } from './utils';
+import { restartWithJDKLater } from './utils';
 import { ExtensionLogger, LogLevel } from '../logger';
 import { globalVars } from '../extension';
 
@@ -19,14 +19,12 @@ export class NbLanguageClient extends LanguageClient {
     static build = (serverOptions: ServerOptions, logger: ExtensionLogger): NbLanguageClient => {
         let documentSelectors: DocumentSelector = [
             { language: extConstants.LANGUAGE_ID },
-            { language: 'yaml', pattern: '**/{application,bootstrap}*.yml' },
-            { language: 'properties', pattern: '**/{application,bootstrap}*.properties' },
+            { language: 'properties', pattern: '**/*.properties' },
             { language: 'jackpot-hint' },
             { language: 'xml', pattern: '**/pom.xml' },
-            { pattern: '**/build.gradle' }
+            { pattern: '*.gradle' },
+            { pattern: '*.gradle.kts' }
         ];
-        // TODO: Decide whether to collect document selector from other extensions as well or not?
-        documentSelectors.push(...collectDocumentSelectors());
 
         // Options to control the language client
         let clientOptions: LanguageClientOptions = {

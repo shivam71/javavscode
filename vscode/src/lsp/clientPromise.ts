@@ -2,7 +2,7 @@ import { commands } from "vscode";
 import { globalVars, LOGGER } from "../extension";
 import { LogLevel } from "../logger";
 import { NbProcessManager } from "./nbProcessManager";
-import { clientInit, serverOptionsBuilder } from "./initializer";
+import { clientInit } from "./initializer";
 import { NbLanguageClient } from "./nbLanguageClient";
 
 export class ClientPromise {

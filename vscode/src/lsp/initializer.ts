@@ -83,14 +83,14 @@ const enableDisableNbjavacModule = () => {
     enableDisableModules(extensionPath, userdirPath, ['org.netbeans.libs.nbjavacapi'], !nbjavacValue);
 }
 
-export const serverOptionsBuilder = () => {
+const serverBuilder = () => {
     enableDisableNbjavacModule();
     launchNbcode();
     return establishConnection;
 }
 
 export const clientInit = () => {
-    const connection: () => Promise<StreamInfo> = serverOptionsBuilder();
+    const connection: () => Promise<StreamInfo> = serverBuilder();
     const client = NbLanguageClient.build(connection, LOGGER);
     
     LOGGER.log('Language Client: Starting');
