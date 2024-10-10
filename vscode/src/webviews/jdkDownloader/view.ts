@@ -14,7 +14,7 @@
   limitations under the License.
 */
 
-import { OPEN_JDK_VERSION_DOWNLOAD_LINKS, ORACLE_JDK_DOWNLOAD_VERSIONS } from '../../constants';
+import { jdkDownloaderConstants } from '../../constants';
 import { ViewColumn, WebviewPanel, window } from 'vscode';
 import * as os from 'os';
 import { JdkDownloaderAction } from './action';
@@ -112,7 +112,7 @@ export class JdkDownloaderView {
                 <br />
                 <div class="jdk-version-dropdown">
                 <select id="oracleJDKVersionDropdown">
-                    ${this.getJdkVersionsHtml(ORACLE_JDK_DOWNLOAD_VERSIONS)}
+                    ${this.getJdkVersionsHtml(jdkDownloaderConstants.ORACLE_JDK_DOWNLOAD_VERSIONS)}
                 </select>
                 </div>
             </div>
@@ -144,7 +144,7 @@ export class JdkDownloaderView {
                 <br />
                 <div class="jdk-version-dropdown">
                 <select id="openJDKVersionDropdown">
-                    ${this.getJdkVersionsHtml(Object.keys(OPEN_JDK_VERSION_DOWNLOAD_LINKS))}
+                    ${this.getJdkVersionsHtml(Object.keys(jdkDownloaderConstants.OPEN_JDK_VERSION_DOWNLOAD_LINKS))}
                 </select>
                 </div>
             </div>

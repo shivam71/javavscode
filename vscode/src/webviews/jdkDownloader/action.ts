@@ -16,7 +16,7 @@
 
 import { commands, OpenDialogOptions, OutputChannel, window, workspace } from "vscode";
 import { JdkDownloaderView } from "./view";
-import { OPEN_JDK_VERSION_DOWNLOAD_LINKS, ORACLE_JDK_BASE_DOWNLOAD_URL } from "../../constants";
+import { jdkDownloaderConstants } from "../../constants";
 import * as path from 'path';
 import * as fs from 'fs';
 import { calculateChecksum, downloadFileWithProgressBar, httpsGet } from "../../utils";
@@ -153,10 +153,10 @@ export class JdkDownloaderAction {
         let baseDownloadUrl: string = '';
 
         if (this.jdkType === JdkDownloaderView.OPEN_JDK_LABEL) {
-            baseDownloadUrl = `${OPEN_JDK_VERSION_DOWNLOAD_LINKS[`${this.jdkVersion}`]}_${this.osType!.toLowerCase()}-${this.machineArch}_bin`;
+            baseDownloadUrl = `${jdkDownloaderConstants.OPEN_JDK_VERSION_DOWNLOAD_LINKS[`${this.jdkVersion}`]}_${this.osType!.toLowerCase()}-${this.machineArch}_bin`;
         }
         else if (this.jdkType === JdkDownloaderView.ORACLE_JDK_LABEL) {
-            baseDownloadUrl = `${ORACLE_JDK_BASE_DOWNLOAD_URL}/${this.jdkVersion}/latest/jdk-${this.jdkVersion}_${this.osType!.toLowerCase()}-${this.machineArch}_bin`;
+            baseDownloadUrl = `${jdkDownloaderConstants.ORACLE_JDK_BASE_DOWNLOAD_URL}/${this.jdkVersion}/latest/jdk-${this.jdkVersion}_${this.osType!.toLowerCase()}-${this.machineArch}_bin`;
         }
         const downloadUrl = this.osType === 'windows' ? `${baseDownloadUrl}.zip` : `${baseDownloadUrl}.tar.gz`;
         LOGGER.log(`Downloading JDK from ${downloadUrl}`);

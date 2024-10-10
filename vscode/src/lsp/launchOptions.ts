@@ -32,7 +32,8 @@ export const getUserConfigLaunchOptionsDefaults = (): userDefinedLaunchOptionsTy
     };
 };
 
-const extraLaunchOptions = ["--modules",
+const extraLaunchOptions = [
+    "--modules",
     "--list",
     "-J-XX:PerfMaxStringConstLength=10240",
     "--locale", l10n.nbLocaleCode(),
