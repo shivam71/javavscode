@@ -31,7 +31,6 @@ import { NbTestAdapter } from './testAdapter';
 import { SetTextEditorDecorationParams} from './lsp/protocol';
 import * as launchConfigurations from './launchConfigurations';
 import { initializeRunConfiguration, runConfigurationProvider, runConfigurationNodeProvider, configureRunSettings } from './runConfiguration';
-import { PropertiesView } from './propertiesView/propertiesView';
 import { extConstants } from './constants';
 import { ExtensionInfo } from './extensionInfo';
 import { ClientPromise } from './lsp/clientPromise';
@@ -82,9 +81,6 @@ export function activate(context: ExtensionContext): VSNetBeansAPI {
 	});
 
     subscribeCommands(context);
-
-    context.subscriptions.push(commands.registerCommand(extConstants.COMMAND_PREFIX + '.node.properties.edit',
-        async (node) => await PropertiesView.createOrShow(context, node, (await globalVars.clientPromise.client).findTreeViewService())));
 
     const archiveFileProvider = <vscode.TextDocumentContentProvider> {
         provideTextDocumentContent: async (uri: vscode.Uri, token: vscode.CancellationToken): Promise<string> => {
