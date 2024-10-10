@@ -40,8 +40,8 @@ import { NbProcessManager } from './lsp/nbProcessManager';
 import { clientInit } from './lsp/initializer';
 import { subscribeCommands } from './commands/register';
 import { VSNetBeansAPI } from './lsp/types';
-import { registerListenersBeforeClientInit } from './listener';
 import { registerDebugger } from './debugger/debugger';
+import { registerConfigChangeListeners } from './configurations/listener';
 
 export let LOGGER: ExtensionLogger;
 export namespace globalVars {
@@ -65,10 +65,9 @@ export function activate(context: ExtensionContext): VSNetBeansAPI {
     LOGGER = new ExtensionLogger(extConstants.SERVER_NAME);
 
     globalVars.clientPromise.initialize();
-    registerListenersBeforeClientInit();
+    registerConfigChangeListeners(context);
     clientInit();
 
-    //register debugger:
     registerDebugger(context);
     // initialize Run Configuration
     initializeRunConfiguration().then(initialized => {
@@ -82,7 +81,6 @@ export function activate(context: ExtensionContext): VSNetBeansAPI {
 		}
 	});
 
-    // register commands
     subscribeCommands(context);
 
     context.subscriptions.push(commands.registerCommand(extConstants.COMMAND_PREFIX + '.node.properties.edit',
