@@ -94,7 +94,7 @@ export const wrapCommandWithProgress = (lsCommand: string, title: string, log?: 
                     }
                 }
             } else {
-                reject(l10n.value("jdk.extenstion.progressBar.error_msg.cannotRun", { lsCommand: lsCommand, client: c }));
+                reject(l10n.value("jdk.extension.progressBar.error_msg.cannotRun", { lsCommand: lsCommand, client: c }));
             }
         });
     });

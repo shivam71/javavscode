@@ -10,7 +10,7 @@ const deleteCache = async () => {
     // TODO: Change workspace path to userdir path
     const storagePath = globalVars.extensionInfo.getWorkspaceStorage()?.fsPath;
     if (!storagePath) {
-        window.showErrorMessage(l10n.value("jdk.extenstion.cache.error_msg.cannotFindWrkSpacePath"));
+        window.showErrorMessage(l10n.value("jdk.extension.cache.error_msg.cannotFindWrkSpacePath"));
         return;
     }
 
@@ -27,9 +27,9 @@ const deleteCache = async () => {
                 globalVars.deactivated = true;
                 await globalVars.nbProcessManager?.killProcess(false);
                 await fs.promises.rmdir(userDir, { recursive: true });
-                await window.showInformationMessage(l10n.value("jdk.extenstion.message.cacheDeleted"), reloadWindowActionLabel);
+                await window.showInformationMessage(l10n.value("jdk.extension.message.cacheDeleted"), reloadWindowActionLabel);
             } catch (err) {
-                await window.showErrorMessage(l10n.value("jdk.extenstion.error_msg.cacheDeletionError"), reloadWindowActionLabel);
+                await window.showErrorMessage(l10n.value("jdk.extension.error_msg.cacheDeletionError"), reloadWindowActionLabel);
             } finally {
                 commands.executeCommand(builtInCommands.reloadWindow);
             }

@@ -197,23 +197,22 @@ export async function dumpJava(): Promise<void> {
     console.log(`${cmd} ${args.join(' ')} finished with code ${n}`);
 }
 
-export function awaitClient() : Promise<NbLanguageClient> {
+export const awaitClient = async () : Promise<NbLanguageClient> => {
     const clientPromise = globalVars.clientPromise;
     if (clientPromise.client && clientPromise.initialPromiseResolved) {
         return clientPromise.client;
     }
-    let nbcode = vscode.extensions.getExtension(extConstants.ORACLE_VSCODE_EXTENSION_ID);
-    if (!nbcode) {
-        return Promise.reject(new Error(l10n.value("jdk.extenstion.notInstalled.label")));
+    let extension = vscode.extensions.getExtension(extConstants.ORACLE_VSCODE_EXTENSION_ID);
+    if (!extension) {
+        return Promise.reject(new Error(l10n.value("jdk.extension.notInstalled.label")));
     }
-    const t : Thenable<NbLanguageClient> = nbcode.activate().then(nc => {
-        if (globalVars.clientPromise.client === undefined || !globalVars.clientPromise.initialPromiseResolved) {
-            throw new Error(l10n.value("jdk.extenstion.error_msg.clientNotAvailable"));
-        } else {
-            return globalVars.clientPromise.client;
-        }
-    });
-    return Promise.resolve(t);
+    await extension.activate();
+
+    if (!globalVars.clientPromise.client || !globalVars.clientPromise.initialPromiseResolved) {
+        throw new Error(l10n.value("jdk.extension.error_msg.clientNotAvailable"));
+    }
+
+    return globalVars.clientPromise.client;
 }
 
 export function findClusters(myPath : string): string[] {
