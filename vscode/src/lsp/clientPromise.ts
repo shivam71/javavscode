@@ -24,8 +24,7 @@ import { NbLanguageClient } from "./nbLanguageClient";
 export class ClientPromise {
     setClient!: [(c: NbLanguageClient) => void, (err: any) => void];
     client!: Promise<NbLanguageClient>;
-    activationPending!: boolean;
-    initialPromiseResolved: boolean = false;
+    activationPending: boolean = true;
 
     public initialize = (): void => {
         this.client = new Promise<NbLanguageClient>((clientOK, clientErr) => {
@@ -44,7 +43,6 @@ export class ClientPromise {
     }
 
     public initializedSuccessfully = (client: NbLanguageClient) => {
-        this.initialPromiseResolved = true;
         globalVars.clientPromise.setClient[0](client);
         commands.executeCommand('setContext', 'nbJdkReady', true);
     }

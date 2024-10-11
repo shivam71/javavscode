@@ -25,7 +25,6 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
 import * as fs from 'fs';
-import * as myExtension from '../../extension';
 import * as path from 'path';
 import { spawn, ChildProcessByStdio } from 'child_process';
 import { Readable } from 'stream';
@@ -198,21 +197,17 @@ export async function dumpJava(): Promise<void> {
 }
 
 export const awaitClient = async () : Promise<NbLanguageClient> => {
-    const clientPromise = globalVars.clientPromise;
-    if (clientPromise.client && clientPromise.initialPromiseResolved) {
-        return clientPromise.client;
-    }
-    let extension = vscode.extensions.getExtension(extConstants.ORACLE_VSCODE_EXTENSION_ID);
+    const extension = vscode.extensions.getExtension(extConstants.ORACLE_VSCODE_EXTENSION_ID);
     if (!extension) {
         return Promise.reject(new Error(l10n.value("jdk.extension.notInstalled.label")));
     }
-    await extension.activate();
-
-    if (!globalVars.clientPromise.client || !globalVars.clientPromise.initialPromiseResolved) {
-        throw new Error(l10n.value("jdk.extension.error_msg.clientNotAvailable"));
+    if(extension.isActive){
+        return globalVars.clientPromise.client;
     }
-
-    return globalVars.clientPromise.client;
+    const waitForExtenstionActivation : Thenable<NbLanguageClient> = extension.activate().then(async () => {
+        return await globalVars.clientPromise.client;
+    });
+    return Promise.resolve(waitForExtenstionActivation);
 }
 
 export function findClusters(myPath : string): string[] {
