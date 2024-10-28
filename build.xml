@@ -63,6 +63,7 @@
             patches/remove-db.diff
             patches/nbjavac-not-required.diff
             patches/l10n-licence.diff
+            patches/templateUI_patch1.diff
         </string>
         <filterchain>
             <tokenfilter delimoutput=" ">
