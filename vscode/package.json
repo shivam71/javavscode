@@ -248,6 +248,11 @@
 					"type": "boolean",
 					"default": false,
 					"description": "%jdk.configuration.disableProjectSearchLimit.description%"
+				},
+				"jdk.completion.warning.time": {
+					"type": "integer",
+					"default": 10000,
+					"description": "%jdk.debugger.configuration.completion.warning.time.description%"
 				}
 			}
 		},
@@ -272,7 +277,7 @@
 						"properties": {
 							"mainClass": {
 								"type": "string",
-								"description": "%jdk.debugger.configuration.mainClass.description%",
+								"markdownDescription": "%jdk.debugger.configuration.mainClass.markdownDescription%",
 								"default": "${file}"
 							},
 							"classPaths": {
@@ -302,8 +307,13 @@
 							"vmArgs": {
 								"type": [
 									"string",
+									"array",
 									"null"
 								],
+								"items": {
+									"type": "string",
+									"description": "%jdk.debugger.configuration.vmArgs.items.description%"
+								},
 								"description": "%jdk.debugger.configuration.vmArgs.description%",
 								"default": null
 							},
