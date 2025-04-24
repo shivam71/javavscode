@@ -30,7 +30,8 @@ export const configKeys = {
     runConfigEnv: 'runConfig.env',
     verbose: 'verbose',
     userdir: 'userdir',
-    revealInActivteProj: "revealActiveInProjects"
+    revealInActivteProj: "revealActiveInProjects",
+    notebookClasspath: "notebook.classpath"
 };
 
 export const builtInConfigKeys = {
