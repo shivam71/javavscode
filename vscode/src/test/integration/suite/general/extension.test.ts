@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2023, Oracle and/or its affiliates.
+ * Copyright (c) 2023-2025, Oracle and/or its affiliates.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -28,7 +28,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import * as myExplorer from '../../../../views/projects';
 import { CodeAction, commands, extensions, Selection, Uri, window, workspace, TreeItem } from 'vscode';
-import { assertWorkspace, awaitClient, dumpJava, findClusters, getFilePaths, openFile, prepareProject, replaceCode } from '../../testutils';
+import { addSleepIfWindowsPlatform, assertWorkspace, awaitClient, dumpJava, findClusters, getFilePaths, openFile, prepareProject, replaceCode } from '../../testutils';
 import { FORMATTED_POM_XML, SAMPLE_CODE_FORMAT_DOCUMENT, SAMPLE_CODE_SORT_IMPORTS, SAMPLE_CODE_UNUSED_IMPORTS } from '../../constants';
 import { extCommands } from '../../../../commands/commands';
 
@@ -40,7 +40,7 @@ suite('Extension Test Suite', function () {
   // Create project which used be used for testing
   this.beforeAll(async () => {
     await prepareProject(filePaths);
-  }).timeout(60000);
+  });
 
   // This test must be run first, in order to activate the extension and wait for the activation to complete
   test("Extension loaded and activated", async () => {
@@ -59,7 +59,7 @@ suite('Extension Test Suite', function () {
     }
     assert.ok(cannotReassignVersion, "Cannot reassign value of version");
 
-  }).timeout(60000);
+  });
 
   // Test if clusters are loaded or not
   test('Find clusters', async () => {
@@ -93,7 +93,7 @@ suite('Extension Test Suite', function () {
     for (let c of found) {
       assert.ok(c.startsWith(nbcode.extensionPath), `All extensions are below ${nbcode.extensionPath}, but: ${c}`);
     }
-  }).timeout(60000);
+  });
 
   // Check if Jdk commands have been loaded
   test("Jdk commands loaded", async () => {
@@ -107,7 +107,7 @@ suite('Extension Test Suite', function () {
     }
 
     assert.ok(containsJdkCommands, "No Jdk command has been loaded");
-  }).timeout(60000);
+  });
 
   // Check if format document command is executed successfully
   test("Format document", async () => {
@@ -118,13 +118,13 @@ suite('Extension Test Suite', function () {
     const unformattedCode = SAMPLE_CODE_FORMAT_DOCUMENT.split('\n').length;
     const isDocumentFormatted = formattedCode > unformattedCode;
     assert.ok(isDocumentFormatted, "document is not formatted");
-  }).timeout(60000);
+  });
 
   // Check if imports are getting sorted on saving document
   test("Sort imports", async () => {
     const editor = await openFile(filePaths.sortImports);
     await replaceCode(editor, SAMPLE_CODE_SORT_IMPORTS);
-
+    await addSleepIfWindowsPlatform();
     const isSaved = await editor.document.save();
     assert.ok(isSaved, "document cannot be saved");
 
@@ -133,13 +133,13 @@ suite('Extension Test Suite', function () {
       savedCode.indexOf('import java.util.ArrayList;');
     assert.ok(isImportsSorted, "Imports are not sorted");
 
-  }).timeout(60000);
+  });
 
   // Check if unused imports are getting removed on saving document
   test("Remove unused imports", async () => {
     const editor = await openFile(filePaths.unusedImports);
     await replaceCode(editor, SAMPLE_CODE_UNUSED_IMPORTS);
-
+    await addSleepIfWindowsPlatform();
     const isSaved = await editor.document.save();
     assert.ok(isSaved, "document cannot be saved");
 
@@ -148,7 +148,7 @@ suite('Extension Test Suite', function () {
       savedCode.indexOf('import java.lang.Integer;') === -1;
     assert.ok(areUnusedImportsRemoved, "Unused imports are not removed");
 
-  }).timeout(60000);
+  });
 
   // Check if refactor actions are getting showing on UI and if they are working
   test("Refactor actions executing", async () => {
@@ -176,7 +176,7 @@ suite('Extension Test Suite', function () {
         }
       }
     }
-  }).timeout(60000);
+  });
 
   // Tests explorer is loading properly
   test("Test Explorer tests", async () => {
@@ -203,7 +203,7 @@ suite('Extension Test Suite', function () {
       dumpJava();
       throw error;
     }
-  }).timeout(60000);
+  });
 
   // Check if compile workspace command is excuted succesfully
   test("Compile workspace", async () => {
@@ -221,7 +221,7 @@ suite('Extension Test Suite', function () {
       const item = await (lvp.getTreeItem(firstLevelChildren[0]) as Thenable<TreeItem>);
       assert.strictEqual(item?.label, "basicapp", "Element is named as the Maven project");
     });
-  }).timeout(60000);
+  });
 
   // Get Project info
   test("Get project sources, classpath, and packages", async () => {
@@ -286,7 +286,7 @@ suite('Extension Test Suite', function () {
       dumpJava();
       throw error;
     }
-  }).timeout(60000);
+  });
 
   // Check if clean workspace command is excuted succesfully
   test("Clean workspace", async () => {
@@ -296,7 +296,7 @@ suite('Extension Test Suite', function () {
 
     const mainClass = path.join(folder, 'target');
     assert.ok(!fs.existsSync(mainClass), "Class created by compilation: " + mainClass);
-  }).timeout(60000);
+  });
 
   // Check if xml document formatting is executed successfully
   test("XML Format document", async () => {
@@ -305,6 +305,6 @@ suite('Extension Test Suite', function () {
 
     const formattedContents = editor.document.getText().trim();
     assert.ok(formattedContents == FORMATTED_POM_XML.trim(), "pom.xml is not formatted");
-  }).timeout(60000);
+  });
 
 });

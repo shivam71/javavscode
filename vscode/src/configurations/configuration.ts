@@ -31,7 +31,8 @@ export const configKeys = {
     verbose: 'verbose',
     userdir: 'userdir',
     revealInActivteProj: "revealActiveInProjects",
-    notebookClasspath: "notebook.classpath"
+    notebookClasspath: "notebook.classpath",
+    telemetryEnabled: 'telemetry.enabled',
 };
 
 export const builtInConfigKeys = {
