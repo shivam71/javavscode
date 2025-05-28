@@ -3,7 +3,7 @@ import { LanguageClient } from 'vscode-languageclient/node';
 import { isNbCommandRegistered } from '../commands/utils';
 import { nbCommands } from '../commands/commands';
 import { globalState } from '../globalState';
-import { getConfigurationValue } from '../configurations/handlers';
+import { getConfigurationValue, isEnablePreview } from '../configurations/handlers';
 import { configKeys } from '../configurations/configuration';
 
 export class IJNBNotebookSerializer implements vscode.NotebookSerializer {
@@ -257,7 +257,9 @@ export class IJNBKernel implements vscode.Disposable {
 
     const notebookId = notebook.uri.toString();
     const classpath = getConfigurationValue(configKeys.notebookClasspath);
-
+    const modulepath = getConfigurationValue(configKeys.notebookModulepath);
+    const addmodules = getConfigurationValue(configKeys.notebookAddModules);
+    const enablePreview = isEnablePreview(); // create a handler converts the string to boolean 
     for (let cell of cells) {
       console.log("Executing cell:", cell.document.getText());
 
@@ -282,7 +284,10 @@ export class IJNBKernel implements vscode.Disposable {
               nbCommands.executeNotebookCell,
               cellContent,
               notebookId,
-              classpath || null
+              classpath || null,
+              modulepath || null, 
+              addmodules || null, // think a bit compiler vs vm options 
+              enablePreview || false // false true or source flag how type conversion will work 
             );
 
             console.log("Response:", response);
