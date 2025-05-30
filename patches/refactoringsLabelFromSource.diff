@@ -1,0 +1,179 @@
+diff --git a/java/java.lsp.server/src/org/netbeans/modules/java/lsp/server/Utils.java b/java/java.lsp.server/src/org/netbeans/modules/java/lsp/server/Utils.java
+index ec8f1da462..6f50fefebb 100644
+--- a/java/java.lsp.server/src/org/netbeans/modules/java/lsp/server/Utils.java
++++ b/java/java.lsp.server/src/org/netbeans/modules/java/lsp/server/Utils.java
+@@ -21,7 +21,10 @@ package org.netbeans.modules.java.lsp.server;
+ import com.google.gson.stream.JsonWriter;
+ import com.sun.source.tree.CompilationUnitTree;
+ import com.sun.source.tree.LineMap;
++import com.sun.source.tree.MethodTree;
++import com.sun.source.tree.VariableTree;
+ import com.sun.source.tree.Tree;
++import com.sun.source.tree.Tree.Kind;
+ import java.io.IOException;
+ import java.io.StringWriter;
+ import java.net.MalformedURLException;
+@@ -293,6 +296,28 @@ public class Utils {
+         }
+         return null;
+     }
++    public static String label(CompilationInfo info, Tree t) {
++        switch (t.getKind()) {
++            case VARIABLE:
++                StringBuilder sb = new StringBuilder();
++                sb.append(((VariableTree)t).getName().toString());
++                return sb.toString();                
++            case METHOD:
++                sb = new StringBuilder();
++                sb.append(((MethodTree)t).getName().toString());
++                sb.append("(");
++                for(VariableTree vt:((MethodTree)t).getParameters()){
++                    sb.append(vt.toString());// can be issue
++                    sb.append(" ,");
++                }
++                if(!((MethodTree)t).getParameters().isEmpty()){
++                    sb.delete(sb.length()-2, sb.length());
++                }
++                sb.append(")");
++                return sb.toString();            
++        }
++        return null;
++    }
+ 
+     public static String detail(CompilationInfo info, Element e, boolean fqn) {
+         switch (e.getKind()) {
+@@ -314,7 +339,21 @@ public class Utils {
+         }
+         return null;
+     }
+-
++    public  static String detail(CompilationInfo info,Tree t){
++        switch(t.getKind()){
++            case VARIABLE:
++                StringBuilder sb = new StringBuilder();
++                sb.append(": " );
++                sb.append(((VariableTree)t).getType().toString());
++                return sb.toString();                
++            case METHOD:
++                sb = new StringBuilder();
++                sb.append(": ");
++                sb.append(((MethodTree)t).getReturnType().toString());
++                return sb.toString();                
++        }
++        return null;
++    }
+     public static Range treeRange(CompilationInfo info, Tree tree) {
+         long start = info.getTrees().getSourcePositions().getStartPosition(info.getCompilationUnit(), tree);
+         long end   = info.getTrees().getSourcePositions().getEndPosition(info.getCompilationUnit(), tree);
+diff --git a/java/java.lsp.server/src/org/netbeans/modules/java/lsp/server/protocol/CodeActionsProvider.java b/java/java.lsp.server/src/org/netbeans/modules/java/lsp/server/protocol/CodeActionsProvider.java
+index 5a167e313e..085767ad83 100644
+--- a/java/java.lsp.server/src/org/netbeans/modules/java/lsp/server/protocol/CodeActionsProvider.java
++++ b/java/java.lsp.server/src/org/netbeans/modules/java/lsp/server/protocol/CodeActionsProvider.java
+@@ -19,6 +19,7 @@
+ package org.netbeans.modules.java.lsp.server.protocol;
+ 
+ import com.sun.source.tree.LineMap;
++
+ import java.util.Arrays;
+ import java.util.Collections;
+ import java.util.HashMap;
+@@ -27,11 +28,13 @@ import java.util.Map;
+ import java.util.Objects;
+ import java.util.Set;
+ import java.util.concurrent.CompletableFuture;
++
+ import javax.lang.model.element.Element;
+ import javax.lang.model.element.ElementKind;
+ import javax.lang.model.element.ExecutableElement;
+ import javax.lang.model.element.TypeElement;
+ import javax.lang.model.element.VariableElement;
++
+ import org.eclipse.lsp4j.CodeAction;
+ import org.eclipse.lsp4j.CodeActionParams;
+ import org.eclipse.lsp4j.Command;
+@@ -44,6 +47,9 @@ import org.netbeans.modules.java.lsp.server.Utils;
+ import org.netbeans.modules.java.source.ElementHandleAccessor;
+ import org.netbeans.modules.parsing.api.ResultIterator;
+ 
++import com.sun.source.tree.MethodTree;
++import com.sun.source.tree.Tree;
++
+ /**
+  *
+  * @author Dusan Balek
+@@ -144,7 +150,15 @@ public abstract class CodeActionsProvider {
+     protected static String createLabel(CompilationInfo info, ExecutableElement e) {
+         return createLabel(info, e, false);
+     }
+-
++    protected  static String createLabel(CompilationInfo info,Tree t){
++        StringBuilder sb = new StringBuilder();
++        sb.append(Utils.label(info,t));
++        String detail = Utils.detail(info, t);
++        if (detail != null) {
++            sb.append(detail);
++        }
++        return sb.toString();  
++    }
+     protected static String createLabel(CompilationInfo info, ExecutableElement e, boolean fqn) {
+         StringBuilder sb = new StringBuilder();
+         sb.append(Utils.label(info, e, fqn));
+diff --git a/java/java.lsp.server/src/org/netbeans/modules/java/lsp/server/refactoring/ExtractSuperclassOrInterfaceRefactoring.java b/java/java.lsp.server/src/org/netbeans/modules/java/lsp/server/refactoring/ExtractSuperclassOrInterfaceRefactoring.java
+index 03708dd92e..1d03ba0bef 100644
+--- a/java/java.lsp.server/src/org/netbeans/modules/java/lsp/server/refactoring/ExtractSuperclassOrInterfaceRefactoring.java
++++ b/java/java.lsp.server/src/org/netbeans/modules/java/lsp/server/refactoring/ExtractSuperclassOrInterfaceRefactoring.java
+@@ -138,13 +138,13 @@ public final class ExtractSuperclassOrInterfaceRefactoring extends CodeRefactori
+                     boolean selected = offset > startMember && offset < endMember;
+                     Set<Modifier> mods = memberElm.getModifiers();
+                     if (memberElm.getKind() == ElementKind.FIELD) {
+-                        QuickPickItem memberItem = new QuickPickItem(createLabel(info, memberElm), null, null, selected, new ElementData(memberElm));
++                        QuickPickItem memberItem = new QuickPickItem(createLabel(info, info.getTrees().getTree(memberElm)), null, null, selected, new ElementData(memberElm));
+                         allMembers.add(memberItem);
+                         if (mods.contains(Modifier.PUBLIC) && mods.contains(Modifier.STATIC) && mods.contains(Modifier.FINAL) && ((VariableTree) member).getInitializer() != null) {
+                             members.add(memberItem);
+                         }
+                     } else if (memberElm.getKind() == ElementKind.METHOD) {
+-                        QuickPickItem memberItem = new QuickPickItem(createLabel(info, memberElm), null, null, selected, new ElementData(memberElm));
++                        QuickPickItem memberItem = new QuickPickItem(createLabel(info, info.getTrees().getTree(memberElm)), null, null, selected, new ElementData(memberElm));
+                         allMembers.add(memberItem);
+                         if (mods.contains(Modifier.PUBLIC) && !mods.contains(Modifier.STATIC)) {
+                             members.add(memberItem);
+diff --git a/java/java.lsp.server/src/org/netbeans/modules/java/lsp/server/refactoring/MoveRefactoring.java b/java/java.lsp.server/src/org/netbeans/modules/java/lsp/server/refactoring/MoveRefactoring.java
+index 12acbc7081..845cba85cc 100644
+--- a/java/java.lsp.server/src/org/netbeans/modules/java/lsp/server/refactoring/MoveRefactoring.java
++++ b/java/java.lsp.server/src/org/netbeans/modules/java/lsp/server/refactoring/MoveRefactoring.java
+@@ -215,7 +215,7 @@ public final class MoveRefactoring extends CodeRefactoring {
+         ElementUI[] members = enclosingElement.getEnclosedElements().stream()
+                 .filter(memberElement -> (memberElement.getKind().isField() || memberElement.getKind() == ElementKind.METHOD) && !eu.isSynthetic(memberElement))
+                 .map(memberElement -> {
+-                    String label = createLabel(ci, memberElement);
++                    String label = createLabel(ci, ci.getTrees().getTree(memberElement));
+                     ElementData data = new ElementData(memberElement);
+                     ElementUI memberElementUI = new ElementUI(memberElement == element, label, memberElement.getKind().name(), data.getSignature());
+                     return memberElementUI;
+diff --git a/java/java.lsp.server/src/org/netbeans/modules/java/lsp/server/refactoring/PullUpRefactoring.java b/java/java.lsp.server/src/org/netbeans/modules/java/lsp/server/refactoring/PullUpRefactoring.java
+index dde9fedd4f..8c1f243647 100644
+--- a/java/java.lsp.server/src/org/netbeans/modules/java/lsp/server/refactoring/PullUpRefactoring.java
++++ b/java/java.lsp.server/src/org/netbeans/modules/java/lsp/server/refactoring/PullUpRefactoring.java
+@@ -210,7 +210,7 @@ public final class PullUpRefactoring extends CodeRefactoring {
+                             long startMember = path != null ? sourcePositions.getStartPosition(path.getCompilationUnit(), path.getLeaf()) : -1;
+                             long endMember = path != null ? sourcePositions.getEndPosition(path.getCompilationUnit(), path.getLeaf()) : -1;
+                             boolean selected = offset > startMember && offset < endMember;
+-                            members.add(new QuickPickItem(createLabel(info, e), null, null, selected, new ElementData(e)));
++                            members.add(new QuickPickItem(createLabel(info, info.getTrees().getTree(e)), null, null, selected, new ElementData(e)));
+                         }
+                     }
+                 }
+diff --git a/java/java.lsp.server/src/org/netbeans/modules/java/lsp/server/refactoring/PushDownRefactoring.java b/java/java.lsp.server/src/org/netbeans/modules/java/lsp/server/refactoring/PushDownRefactoring.java
+index 3bff795f53..2dc6a3dcbd 100644
+--- a/java/java.lsp.server/src/org/netbeans/modules/java/lsp/server/refactoring/PushDownRefactoring.java
++++ b/java/java.lsp.server/src/org/netbeans/modules/java/lsp/server/refactoring/PushDownRefactoring.java
+@@ -129,7 +129,7 @@ public final class PushDownRefactoring extends CodeRefactoring {
+             long startMember = mPath != null ? sourcePositions.getStartPosition(mPath.getCompilationUnit(), mPath.getLeaf()) : -1;
+             long endMember = mPath != null ? sourcePositions.getEndPosition(mPath.getCompilationUnit(), mPath.getLeaf()) : -1;
+             boolean selected = offset > startMember && offset < endMember;
+-            members.add(new QuickPickItem(createLabel(info, m), null, null, selected, new ElementData(m)));
++            members.add(new QuickPickItem(createLabel(info, info.getTrees().getTree(m)), null, null, selected, new ElementData(m)));
+         }
+         if (members.isEmpty()) {
+             return Collections.emptyList();
