@@ -122,12 +122,12 @@ export class JdkDownloaderAction {
         }
         LOGGER.log(`JDK installation completed successfully`);
 
-        const reloadNow: string = l10n.value("jdk.downloader.message.reload");
-        const selected = await window.showInformationMessage(dialogBoxMessage, reloadNow);
-        if (selected === reloadNow) {
-            await this.downloaderView.disposeView();
-            await commands.executeCommand('workbench.action.reloadWindow');
-        }
+        // const reloadNow: string = l10n.value("jdk.downloader.message.reload");
+        const selected = await window.showInformationMessage(dialogBoxMessage);
+        // if (selected === reloadNow) {
+        //     await this.downloaderView.disposeView();
+        //     await commands.executeCommand('workbench.action.reloadWindow');
+        // }
     }
 
     private jdkInstallationManager = async () => {
