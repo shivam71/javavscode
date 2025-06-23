@@ -32,7 +32,12 @@ export const configKeys = {
     userdir: 'userdir',
     revealInActivteProj: "revealActiveInProjects",
     notebookClasspath: "notebook.classpath",
+    notebookModulepath: "notebook.modulepath",
+    notebookAddModules: "notebook.addmodules",
+    notebookEnablePreview: "notebook.enablePreview",
+    notebookImplicitImports: "notebook.implicitImports",
     telemetryEnabled: 'telemetry.enabled',
+
 };
 
 export const builtInConfigKeys = {
@@ -45,6 +50,11 @@ export const userConfigsListened: string[] = [
     appendPrefixToCommand(configKeys.lspVmOptions),
     appendPrefixToCommand(configKeys.disableNbJavac),
     appendPrefixToCommand(configKeys.disableProjSearchLimit),
+    appendPrefixToCommand(configKeys.notebookClasspath),
+    appendPrefixToCommand(configKeys.notebookModulepath),
+    appendPrefixToCommand(configKeys.notebookAddModules),
+    appendPrefixToCommand(configKeys.notebookEnablePreview),
+    appendPrefixToCommand(configKeys.notebookImplicitImports),
     builtInConfigKeys.vscodeTheme,
 ];
 
